@@ -42,17 +42,7 @@ jobs:
       - name: Ejecutar pruebas con cobertura
         run: flutter test --coverage
 
-      # 6️⃣ Convertir LCOV a XML
-      - name: Convertir cobertura LCOV a XML
-        run: |
-          dart pub global activate coverage
-          dart pub global run coverage:format_coverage \
-            --lcov \
-            --in coverage/lcov.info \
-            --out coverage/coverage.xml \
-            --report-on=lib
-
-      # 7️⃣ Análisis con SonarCloud
+      # 6️⃣ Análisis con SonarCloud
       - name: Análisis con SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
         env:
@@ -69,13 +59,13 @@ jobs:
             -Dsonar.cpp.file.suffixes=-
             -Dsonar.objc.file.suffixes=-
 
-      # 8️⃣ Análisis con Semgrep
+      # 7️⃣ Análisis con Semgrep
       - name: Análisis con Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
           config: "p/ci"
 
-      # 9️⃣ Análisis con Snyk
+      # 8️⃣ Análisis con Snyk
       - name: Análisis con Snyk
         uses: snyk/actions/setup@v1
         env:
