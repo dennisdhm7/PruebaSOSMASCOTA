@@ -14,7 +14,7 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # 2️⃣ Instalar Flutter (VERSION COMPATIBLE CON DART 3.8.1)
+      # 2️⃣ Instalar Flutter (versión compatible con Dart 3.8.1)
       - name: Instalar Flutter 3.32.4 (Compatible con Dart 3.8.1)
         uses: subosito/flutter-action@v2
         with:
@@ -25,15 +25,24 @@ jobs:
       - name: Verificar versión de Flutter
         run: flutter --version
 
-      # 3️⃣ Obtener dependencias
+      # 3️⃣ Instalar Dart CLI (necesario para SonarCloud)
+      - name: Instalar Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Verificar versión de Dart
+        run: dart --version
+
+      # 4️⃣ Obtener dependencias
       - name: Obtener dependencias
         run: flutter pub get
 
-      # 4️⃣ Ejecutar pruebas con cobertura
+      # 5️⃣ Ejecutar pruebas con cobertura
       - name: Ejecutar pruebas con cobertura
         run: flutter test --coverage
 
-      # 5️⃣ Análisis con SonarCloud 
+      # 6️⃣ Análisis con SonarCloud
       - name: Análisis con SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
         env:
@@ -44,18 +53,19 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.qualitygate.wait=true
-            -Dsonar.dart.coverage.reportPaths=coverage/lcov.info
+            -Dsonar.coverageReportPaths=coverage/lcov.info
+            -Dsonar.dart.analyzerPath=$(which dart)
             -Dsonar.c.file.suffixes=-
             -Dsonar.cpp.file.suffixes=-
             -Dsonar.objc.file.suffixes=-
 
-      # 6️⃣ Análisis con Semgrep
+      # 7️⃣ Análisis con Semgrep
       - name: Análisis con Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
           config: "p/ci"
 
-      # 7️⃣ Análisis con Snyk
+      # 8️⃣ Análisis con Snyk
       - name: Análisis con Snyk
         uses: snyk/actions/setup@v1
         env:
