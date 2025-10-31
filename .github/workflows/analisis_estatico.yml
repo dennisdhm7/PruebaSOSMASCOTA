@@ -10,55 +10,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout del repositorio
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # 2️⃣ Instalar Flutter
+      # ✅ Instalar Flutter 3.24.3 (Dart 3.8.1)
       - name: Instalar Flutter 3.24.3
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.3'     # Usamos la versión compatible con Dart 3.8.1
-          channel: 'stable'
-          cache: true
+        run: |
+          git clone https://github.com/flutter/flutter.git --branch 3.24.3 --depth 1
+          echo "$PWD/flutter/bin" >> $GITHUB_PATH
+          flutter --version
 
-      - name: Verificar versión de Flutter
-        run: flutter --version
-
-      # 3️⃣ Obtener dependencias (CORRECCIÓN DE RUTA)
       - name: Obtener dependencias
-        run: cd SosMascota && flutter pub get
+        run: flutter pub get
 
-      # 4️⃣ Ejecutar pruebas con cobertura (CORRECCIÓN DE RUTA)
-      - name: Ejecutar pruebas con cobertura
-        run: cd SosMascota && flutter test --coverage
-
-      # 5️⃣ Análisis con SonarCloud (CORRECCIÓN DE PROJECT BASE DIR Y RUTA DEL REPORTE)
+      # 🔹 1. Análisis con SonarCloud
       - name: Análisis con SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # APUNTA A LA CARPETA DE LA APP
-          projectBaseDir: SosMascota 
+          projectBaseDir: .
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.qualitygate.wait=true
-            # RUTA DEL REPORTE AHORA ES RELATIVA A 'SosMascota'
             -Dsonar.dart.coverage.reportPaths=coverage/lcov.info
             -Dsonar.c.file.suffixes=-
             -Dsonar.cpp.file.suffixes=-
             -Dsonar.objc.file.suffixes=-
-            # NOTA: -Dsonar.dart.file.suffixes=- fue eliminado para habilitar el análisis de Dart
+            -Dsonar.dart.file.suffixes=-
 
-      # 6️⃣ Análisis con Semgrep
+      # 🔹 2. Análisis con Semgrep
       - name: Análisis con Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
           config: "p/ci"
 
-      # 7️⃣ Análisis con Snyk
+      # 🔹 3. Análisis con Snyk
       - name: Análisis con Snyk
         uses: snyk/actions/setup@v1
         env:
