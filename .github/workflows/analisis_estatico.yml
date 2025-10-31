@@ -17,11 +17,13 @@ jobs:
       - name: Instalar Flutter 3.24.3
         run: |
           git clone https://github.com/flutter/flutter.git --branch 3.24.3 --depth 1
-          echo "$PWD/flutter/bin" >> $GITHUB_PATH
+          export PATH="$PATH:$PWD/flutter/bin"
           flutter --version
 
       - name: Obtener dependencias
-        run: flutter pub get
+        run: |
+          export PATH="$PATH:$PWD/flutter/bin"
+          flutter pub get
 
       # 🔹 1. Análisis con SonarCloud
       - name: Análisis con SonarCloud
