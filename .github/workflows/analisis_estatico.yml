@@ -14,24 +14,23 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # 2️⃣ Instalar Flutter (USAMOS EL MÉTODO ESTABLE DE ACCIÓN)
-      - name: Instalar Flutter 3.24.3
+      # 2️⃣ Instalar Flutter (VERSION COMPATIBLE CON DART 3.8.1)
+      - name: Instalar Flutter 3.32.4 (Compatible con Dart 3.8.1)
         uses: subosito/flutter-action@v2
         with:
-          # NOTA: Cambia '3.24.3' a la versión MÁS RECIENTE
-          # compatible con Dart ^3.8.1 si '3.24.3' no funciona.
-          flutter-version: '3.24.3' 
+          # Usamos la versión 3.32.4 según lo confirmado
+          flutter-version: '3.32.4' 
           channel: 'stable'
           cache: true
 
       - name: Verificar versión de Flutter
         run: flutter --version
 
-      # 3️⃣ Obtener dependencias (EJECUTADO DENTRO DE LA CARPETA DE LA APP)
+      # 3️⃣ Obtener dependencias (EJECUTADO DENTRO DE LA CARPETA DE LA APLICACIÓN)
       - name: Obtener dependencias
         run: cd SosMascota && flutter pub get
 
-      # 4️⃣ Ejecutar pruebas con cobertura (EJECUTADO DENTRO DE LA CARPETA DE LA APP)
+      # 4️⃣ Ejecutar pruebas con cobertura (EJECUTADO DENTRO DE LA CARPETA DE LA APLICACIÓN)
       - name: Ejecutar pruebas con cobertura
         run: cd SosMascota && flutter test --coverage
 
@@ -41,7 +40,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # APUNTA A LA CARPETA DE LA APP
+          # APUNTA A LA CARPETA DE LA APP 
           projectBaseDir: SosMascota 
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
@@ -52,7 +51,6 @@ jobs:
             -Dsonar.c.file.suffixes=-
             -Dsonar.cpp.file.suffixes=-
             -Dsonar.objc.file.suffixes=-
-            # REMOVEMOS la exclusión de Dart (antes estaba -Dsonar.dart.file.suffixes=-)
 
       # 6️⃣ Análisis con Semgrep
       - name: Análisis con Semgrep
