@@ -14,7 +14,7 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # 2️⃣ Instalar Flutter (versión compatible con Dart 3.8.1)
+      # 2️⃣ Instalar Flutter
       - name: Instalar Flutter 3.32.4 (Compatible con Dart 3.8.1)
         uses: subosito/flutter-action@v2
         with:
@@ -42,7 +42,17 @@ jobs:
       - name: Ejecutar pruebas con cobertura
         run: flutter test --coverage
 
-      # 6️⃣ Análisis con SonarCloud
+      # 6️⃣ Convertir LCOV a XML
+      - name: Convertir cobertura LCOV a XML
+        run: |
+          dart pub global activate coverage
+          dart pub global run coverage:format_coverage \
+            --lcov \
+            --in coverage/lcov.info \
+            --out coverage/coverage.xml \
+            --report-on=lib
+
+      # 7️⃣ Análisis con SonarCloud
       - name: Análisis con SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
         env:
@@ -53,19 +63,19 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.qualitygate.wait=true
-            -Dsonar.coverageReportPaths=coverage/lcov.info
+            -Dsonar.coverageReportPaths=coverage/coverage.xml
             -Dsonar.dart.analyzerPath="/usr/bin/dart"
             -Dsonar.c.file.suffixes=-
             -Dsonar.cpp.file.suffixes=-
             -Dsonar.objc.file.suffixes=-
 
-      # 7️⃣ Análisis con Semgrep
+      # 8️⃣ Análisis con Semgrep
       - name: Análisis con Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
           config: "p/ci"
 
-      # 8️⃣ Análisis con Snyk
+      # 9️⃣ Análisis con Snyk
       - name: Análisis con Snyk
         uses: snyk/actions/setup@v1
         env:
