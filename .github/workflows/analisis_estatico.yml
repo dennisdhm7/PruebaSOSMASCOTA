@@ -24,6 +24,9 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.qualitygate.wait=true
+            -Dsonar.c.file.suffixes=-
+            -Dsonar.cpp.file.suffixes=-
+            -Dsonar.objc.file.suffixes=-
 
       # 🔹 2. Análisis con Semgrep
       - name: Análisis con Semgrep
