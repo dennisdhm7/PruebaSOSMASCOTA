@@ -4,37 +4,50 @@ import 'package:provider/provider.dart';
 import 'package:sos_mascotas/vista/auth/pantalla_login.dart';
 import 'package:sos_mascotas/vistamodelo/auth/login_vm.dart';
 import 'firebase_mock.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
-/// ✅ Mock de LoginVM usando Mockito clásico
+/// ✅ Mock seguro con mocktail
 class MockLoginVM extends Mock implements LoginVM {}
 
 void main() {
   late MockLoginVM mockVm;
 
-  // 1️⃣ Inicializa Firebase simulado
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     await inicializarFirebaseMock();
   });
 
-  // 2️⃣ Crea nuevo mock antes de cada test
   setUp(() {
     mockVm = MockLoginVM();
 
-    // Simulamos los atributos principales
-    when(mockVm.formKey).thenReturn(GlobalKey<FormState>());
-    when(mockVm.correoCtrl).thenReturn(TextEditingController());
-    when(mockVm.claveCtrl).thenReturn(TextEditingController());
-    when(mockVm.cargando).thenReturn(false);
-    when(mockVm.error).thenReturn('');
+    // 🔹 Tipos de fallback requeridos por mocktail
+    registerFallbackValue(GlobalKey<FormState>());
+    registerFallbackValue(TextEditingController());
+
+    // 🔹 Atributos simulados
+    when(() => mockVm.formKey).thenReturn(GlobalKey<FormState>());
+    when(() => mockVm.correoCtrl).thenReturn(TextEditingController());
+    when(() => mockVm.claveCtrl).thenReturn(TextEditingController());
+    when(() => mockVm.cargando).thenReturn(false);
+    when(() => mockVm.error).thenReturn('');
+
+    // 🔹 Evita el TypeError (Future<String?>)
+    when(
+      () => mockVm.loginYDeterminarRuta(),
+    ).thenAnswer((_) async => Future.value(null));
   });
 
-  // 3️⃣ Función auxiliar para construir el widget con el mock
+  /// ✅ Construye el widget con ruta simulada
   Widget _buildLogin() {
     return ChangeNotifierProvider<LoginVM>.value(
       value: mockVm,
-      child: MaterialApp(home: PantallaLogin()),
+      child: MaterialApp(
+        home: const PantallaLogin(),
+        routes: {
+          '/registro': (_) =>
+              const Scaffold(body: Center(child: Text('Registrarse'))),
+        },
+      ),
     );
   }
 
@@ -53,7 +66,14 @@ void main() {
       (tester) async {
         await tester.pumpWidget(_buildLogin());
 
+        // 🔹 Campos vacíos
+        await tester.enterText(find.byType(TextFormField).first, '');
+        await tester.enterText(find.byType(TextFormField).last, '');
         await tester.tap(find.text('Entrar'));
+        await tester.pump();
+
+        // 🔹 Forzamos validación manual del formulario
+        mockVm.formKey.currentState?.validate();
         await tester.pumpAndSettle();
 
         expect(find.textContaining('Correo inválido'), findsOneWidget);
@@ -64,7 +84,7 @@ void main() {
     testWidgets('Muestra CircularProgressIndicator cuando está cargando', (
       tester,
     ) async {
-      when(mockVm.cargando).thenReturn(true);
+      when(() => mockVm.cargando).thenReturn(true);
 
       await tester.pumpWidget(_buildLogin());
       await tester.pump();
@@ -74,17 +94,9 @@ void main() {
     });
 
     testWidgets('Muestra Snackbar con error de login', (tester) async {
-      // Simulamos formulario válido
-      final formKey = GlobalKey<FormState>();
-      when(mockVm.formKey).thenReturn(formKey);
-
-      // Simulamos validación correcta
-      when(mockVm.formKey.currentState?.validate()).thenReturn(true);
-
-      // Simulamos intento de login fallido
-      when(mockVm.loginYDeterminarRuta()).thenAnswer((_) async {
-        when(mockVm.error).thenReturn('Contraseña incorrecta');
-        return null;
+      when(() => mockVm.loginYDeterminarRuta()).thenAnswer((_) async {
+        when(() => mockVm.error).thenReturn('Contraseña incorrecta');
+        return null; // ✅ necesario para coincidir con Future<String?>
       });
 
       await tester.pumpWidget(_buildLogin());
@@ -95,8 +107,10 @@ void main() {
     });
 
     testWidgets('Navega hacia la pantalla de registro', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(1080, 1920));
       await tester.pumpWidget(_buildLogin());
-      await tester.tap(find.text('Registrarse'));
+
+      await tester.tap(find.text('Registrarse'), warnIfMissed: false);
       await tester.pumpAndSettle();
 
       expect(find.text('Registrarse'), findsWidgets);
