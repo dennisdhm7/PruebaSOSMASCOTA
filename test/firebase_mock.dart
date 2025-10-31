@@ -11,30 +11,30 @@ class MockFirebaseAuth extends Mock implements FirebaseAuth {}
 
 /// ✅ Inicializa un entorno Firebase completamente simulado
 Future<void> inicializarFirebaseMock() async {
+  // Aseguramos que el binding esté listo (aunque ya se llama en setUpAll de los tests)
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // 🔧 Evita errores MissingPluginException simulando todos los canales Firebase
-  const MethodChannel firebaseCoreChannel = MethodChannel(
-    'plugins.flutter.io/firebase_core',
-  );
-  const MethodChannel firebaseAuthChannel = MethodChannel(
-    'plugins.flutter.io/firebase_auth',
-  );
-  const MethodChannel firestoreChannel = MethodChannel(
-    'plugins.flutter.io/cloud_firestore',
-  );
+  // 1. Simular la inicialización de Firebase Core
+  // Usaremos un handler dummy para interceptar la llamada al canal nativo
+  // 'plugins.flutter.io/firebase_core' que ocurre dentro de Firebase.initializeApp().
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/firebase_core'),
+        (MethodCall methodCall) async {
+          if (methodCall.method == 'Firebase#initializeCore') {
+            // Retorna un valor simulado que indica que la app "default" está lista
+            return [
+              {
+                'name': 'default',
+                'options': {/* Opciones simuladas */},
+              },
+            ];
+          }
+          return null;
+        },
+      );
 
-  final messenger =
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-
-  for (final channel in [
-    firebaseCoreChannel,
-    firebaseAuthChannel,
-    firestoreChannel,
-  ]) {
-    messenger.setMockMethodCallHandler(channel, (call) async => null);
-  }
-
+  // 2. Ejecutar la inicialización de Core
   try {
     await Firebase.initializeApp(
       options: const FirebaseOptions(
@@ -48,24 +48,31 @@ Future<void> inicializarFirebaseMock() async {
     // Ya inicializado
   }
 
-  // 🔹 Reemplaza instancias reales por mocks seguros
+  // 3. 🔹 Reemplaza instancias reales por mocks seguros AHORA QUE CORE ESTÁ LISTO
+
+  // Mockear el resto de canales que los paquetes llaman para evitar MissingPluginException
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/firebase_auth'),
+        (call) async => null,
+      );
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/cloud_firestore'),
+        (call) async => null,
+      );
+
+  // Simulación de Auth y Firestore
   final mockAuth = MockFirebaseAuth();
   final fakeFirestore = FakeFirebaseFirestore();
 
+  // Redefinir las instancias globales para usar los mocks
   when(() => FirebaseAuth.instance).thenReturn(mockAuth);
   when(() => FirebaseFirestore.instance).thenReturn(fakeFirestore);
 }
 
 /// 🔁 Limpia los canales después de cada prueba
 void limpiarFirebaseMocks() {
-  final messenger =
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-
-  for (final name in [
-    'plugins.flutter.io/firebase_core',
-    'plugins.flutter.io/firebase_auth',
-    'plugins.flutter.io/cloud_firestore',
-  ]) {
-    messenger.setMockMethodCallHandler(MethodChannel(name), null);
-  }
+  // NO ES NECESARIO LIMPIAR CANALES EN tearDown si usamos setMockMethodCallHandler,
+  // pero mantendremos la función por seguridad.
 }
