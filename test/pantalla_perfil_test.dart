@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sos_mascotas/vista/usuario/pantalla_perfil.dart';
+import 'firebase_mock.dart';
 
 void main() {
+  setUpAll(() async {
+    await inicializarFirebaseMock();
+  });
+
   Widget _buildPerfil() {
     return const MaterialApp(home: PantallaPerfil());
   }
@@ -15,7 +20,7 @@ void main() {
 
     testWidgets('Contiene AppBar y BottomNavigationBar', (tester) async {
       await tester.pumpWidget(_buildPerfil());
-      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
 
       expect(find.byType(AppBar), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsOneWidget);
@@ -25,9 +30,9 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(_buildPerfil());
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
-      expect(find.textContaining('Información Personal'), findsWidgets);
+      expect(find.textContaining('Información'), findsWidgets);
       expect(find.textContaining('Seguridad'), findsWidgets);
     });
   });

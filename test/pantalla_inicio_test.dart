@@ -3,8 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:sos_mascotas/vista/usuario/pantalla_inicio.dart';
 import 'package:sos_mascotas/vistamodelo/notificacion/notificacion_vm.dart';
+import 'firebase_mock.dart';
 
 void main() {
+  setUpAll(() async {
+    await inicializarFirebaseMock();
+  });
+
   Widget _buildInicio() {
     return ChangeNotifierProvider(
       create: (_) => NotificacionVM(),
