@@ -15,6 +15,7 @@ void main() {
 
   // 1. Inicializa el entorno mockeado de Firebase
   setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized(); // 👈 línea agregada
     await inicializarFirebaseMock();
   });
 
