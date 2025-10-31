@@ -54,7 +54,7 @@ jobs:
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.qualitygate.wait=true
             -Dsonar.coverageReportPaths=coverage/lcov.info
-            -Dsonar.dart.analyzerPath=$(which dart)
+            -Dsonar.dart.analyzerPath="/usr/bin/dart"
             -Dsonar.c.file.suffixes=-
             -Dsonar.cpp.file.suffixes=-
             -Dsonar.objc.file.suffixes=-
