@@ -10,10 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout del repositorio
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # 🔹 1. Configurar SonarCloud
+      # 2️⃣ Instalar Flutter
+      - name: Instalar Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.24.0"  # usa tu versión exacta
+
+      # 3️⃣ Obtener dependencias
+      - name: Obtener dependencias
+        run: flutter pub get
+
+      # 4️⃣ Ejecutar pruebas con cobertura
+      - name: Ejecutar pruebas con cobertura
+        run: flutter test --coverage
+
+      # 5️⃣ Análisis con SonarCloud
       - name: Análisis con SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
         env:
@@ -24,18 +39,18 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.qualitygate.wait=true
+            -Dsonar.dart.coverage.reportPaths=coverage/lcov.info
             -Dsonar.c.file.suffixes=-
             -Dsonar.cpp.file.suffixes=-
             -Dsonar.objc.file.suffixes=-
-            -Dsonar.dart.file.suffixes=-
 
-      # 🔹 2. Análisis con Semgrep
+      # 6️⃣ Análisis con Semgrep
       - name: Análisis con Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
           config: "p/ci"
 
-      # 🔹 3. Análisis con Snyk
+      # 7️⃣ Análisis con Snyk
       - name: Análisis con Snyk
         uses: snyk/actions/setup@v1
         env:

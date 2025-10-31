@@ -38,6 +38,7 @@ dependencies:
   url_launcher: ^6.3.2
   lottie: ^3.1.0
   tflite_flutter: ^0.11.0
+  mockito: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +48,7 @@ dev_dependencies:
   fake_cloud_firestore: ^4.0.0
   firebase_auth_mocks: ^0.15.1
   mocktail: ^1.0.4
+  mockito: ^5.0.0
 
 flutter:
   uses-material-design: true
