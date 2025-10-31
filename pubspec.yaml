@@ -52,7 +52,7 @@ flutter:
   uses-material-design: true
   
   assets:
-    - assets/keys/service_account.json
+    #- assets/keys/service_account.json#
     - assets/model/animales.tflite
     - assets/model/extractor_animales.tflite
     - assets/avatars/
