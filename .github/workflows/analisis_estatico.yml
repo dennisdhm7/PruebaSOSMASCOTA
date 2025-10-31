@@ -18,21 +18,20 @@ jobs:
       - name: Instalar Flutter 3.32.4 (Compatible con Dart 3.8.1)
         uses: subosito/flutter-action@v2
         with:
-          # Usamos la versión 3.32.4 según lo confirmado
-          flutter-version: '3.32.4' 
+          flutter-version: '3.32.4'
           channel: 'stable'
           cache: true
 
       - name: Verificar versión de Flutter
         run: flutter --version
 
-      # 3️⃣ Obtener dependencias (EJECUTADO DENTRO DE LA CARPETA DE LA APLICACIÓN)
+      # 3️⃣ Obtener dependencias
       - name: Obtener dependencias
-        run: cd SosMascota && flutter pub get
+        run: flutter pub get
 
-      # 4️⃣ Ejecutar pruebas con cobertura (EJECUTADO DENTRO DE LA CARPETA DE LA APLICACIÓN)
+      # 4️⃣ Ejecutar pruebas con cobertura
       - name: Ejecutar pruebas con cobertura
-        run: cd SosMascota && flutter test --coverage
+        run: flutter test --coverage
 
       # 5️⃣ Análisis con SonarCloud 
       - name: Análisis con SonarCloud
@@ -40,13 +39,11 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # APUNTA A LA CARPETA DE LA APP 
-          projectBaseDir: SosMascota 
+          projectBaseDir: .
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.qualitygate.wait=true
-            # RUTA DEL REPORTE ES RELATIVA A 'SosMascota'
             -Dsonar.dart.coverage.reportPaths=coverage/lcov.info
             -Dsonar.c.file.suffixes=-
             -Dsonar.cpp.file.suffixes=-
