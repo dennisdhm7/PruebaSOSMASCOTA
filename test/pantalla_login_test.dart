@@ -4,7 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:sos_mascotas/vista/auth/pantalla_login.dart';
 import 'package:sos_mascotas/vistamodelo/auth/login_vm.dart';
 
+import 'firebase_mock.dart';
+
 void main() {
+  setUpAll(() async {
+    await inicializarFirebaseMock();
+  });
   Widget _buildLogin() {
     return ChangeNotifierProvider(
       create: (_) => LoginVM(),
