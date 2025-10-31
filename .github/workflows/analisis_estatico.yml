@@ -13,10 +13,11 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # ✅ Instalar Flutter 3.24.3 (Dart 3.8.1)
-      - name: Instalar Flutter 3.24.3
+      # ✅ Instalar Flutter 3.27.1 (Dart 3.8.1)
+      - name: Instalar Flutter 3.27.1
         run: |
-          git clone https://github.com/flutter/flutter.git --branch 3.24.3 --depth 1
+          wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.1-stable.tar.xz
+          tar xf flutter_linux_3.27.1-stable.tar.xz
           export PATH="$PATH:$PWD/flutter/bin"
           flutter --version
 
