@@ -63,7 +63,7 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.qualitygate.wait=true
-            -Dsonar.coverageReportPaths=coverage/coverage.xml
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.dart.analyzerPath="/usr/bin/dart"
             -Dsonar.c.file.suffixes=-
             -Dsonar.cpp.file.suffixes=-
