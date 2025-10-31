@@ -1,0 +1,138 @@
+# =========================================================
+# 🧩 ARCHIVOS TEMPORALES Y COMPILADOS
+# =========================================================
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# =========================================================
+# 💻 IDEs Y CONFIGURACIONES LOCALES
+# =========================================================
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# =========================================================
+# 🐦 FLUTTER / DART / PUB
+# =========================================================
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+coverage/
+generated_plugin_registrant.dart
+
+# =========================================================
+# 🧱 BUILD ARTIFACTS ANDROID / IOS
+# =========================================================
+android/.gradle/
+android/.idea/
+android/local.properties
+/android/app/debug
+/android/app/profile
+/android/app/release
+android/key.properties
+android/key.jks
+android/app/key.jks
+android/app/key.properties
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Pods/
+ios/Podfile.lock
+ios/.generated/
+ios/ServiceDefinitions.json
+ios/Runner/GoogleService-Info.plist
+
+# =========================================================
+# 🔥 FIREBASE / GOOGLE / API KEYS
+# =========================================================
+# 🔒 Archivos de configuración de Firebase
+android/app/google-services.json
+android/app/google-services (1).json
+android/app/google-services.json.bak
+ios/Runner/GoogleService-Info.plist
+
+# 🔒 Archivos de servicio o claves privadas
+assets/keys/
+assets/keys/*.json
+assets/keys/*.txt
+assets/keys/*.yaml
+assets/keys/*.env
+
+# 🔒 Claves de API en código fuente
+lib/servicios/openai_servicio.dart
+lib/servicios/servicio_openai.dart
+lib/servicios/firebase_options.dart
+lib/firebase_options.dart
+
+# =========================================================
+# 🔐 VARIABLES DE ENTORNO
+# =========================================================
+.env
+.env.*
+*.env
+.env.local
+.env.development
+.env.production
+
+# =========================================================
+# 🧪 ARCHIVOS DE PRUEBA Y COBERTURA
+# =========================================================
+test_output/
+coverage/
+lcov.info
+test_driver/
+integration_test/
+
+# =========================================================
+# ⚙️ ARCHIVOS TEMPORALES DE SISTEMA
+# =========================================================
+*.tmp
+*.bak
+*.orig
+*.rej
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# =========================================================
+# 🔧 OTROS
+# =========================================================
+*.map.json
+app.*.symbols
+app.*.map.json
+*.keystore
+*.jks
+*.pem
+*.crt
+*.p12
+*.der
+*.key
+
+# =========================================================
+# 🧠 ARCHIVOS PERSONALES O DE CONFIGURACIÓN LOCAL
+# =========================================================
+firebase-debug.log
+google-services.json
+key.jks
+key.properties
+pubspec.lock

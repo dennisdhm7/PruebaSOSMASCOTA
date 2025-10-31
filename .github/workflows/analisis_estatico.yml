@@ -1,0 +1,40 @@
+name: 🧪 Análisis Estático - Calidad y Seguridad del Código
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  analisis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      # 🔹 1. Configurar SonarCloud
+      - name: Análisis con SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+            -Dsonar.qualitygate.wait=true
+
+      # 🔹 2. Análisis con Semgrep
+      - name: Análisis con Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: "p/ci"
+
+      # 🔹 3. Análisis con Snyk
+      - name: Análisis con Snyk
+        uses: snyk/actions/setup@v1
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test
