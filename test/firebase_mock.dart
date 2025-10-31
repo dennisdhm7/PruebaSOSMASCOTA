@@ -6,21 +6,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:mocktail/mocktail.dart';
 
-/// Mocks principales
+/// Mock principal de FirebaseAuth
 class MockFirebaseAuth extends Mock implements FirebaseAuth {}
 
-/// Inicializa un entorno Firebase simulado para las pruebas
+/// ✅ Inicializa un entorno Firebase completamente simulado
 Future<void> inicializarFirebaseMock() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ Evita errores de "MissingPluginException" simulando el canal de Firebase Core
+  // 🔧 Evita errores MissingPluginException simulando todos los canales Firebase
   const MethodChannel firebaseCoreChannel = MethodChannel(
     'plugins.flutter.io/firebase_core',
   );
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(firebaseCoreChannel, (methodCall) async {
-        return null; // Ignora llamadas nativas
-      });
+  const MethodChannel firebaseAuthChannel = MethodChannel(
+    'plugins.flutter.io/firebase_auth',
+  );
+  const MethodChannel firestoreChannel = MethodChannel(
+    'plugins.flutter.io/cloud_firestore',
+  );
+
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+
+  for (final channel in [
+    firebaseCoreChannel,
+    firebaseAuthChannel,
+    firestoreChannel,
+  ]) {
+    messenger.setMockMethodCallHandler(channel, (call) async => null);
+  }
 
   try {
     await Firebase.initializeApp(
@@ -32,10 +45,10 @@ Future<void> inicializarFirebaseMock() async {
       ),
     );
   } catch (_) {
-    // Si ya está inicializado, no hacemos nada
+    // Ya inicializado
   }
 
-  // Mockea FirebaseAuth y Firestore para evitar llamadas reales
+  // 🔹 Reemplaza instancias reales por mocks seguros
   final mockAuth = MockFirebaseAuth();
   final fakeFirestore = FakeFirebaseFirestore();
 
@@ -43,15 +56,16 @@ Future<void> inicializarFirebaseMock() async {
   when(() => FirebaseFirestore.instance).thenReturn(fakeFirestore);
 }
 
-/// Limpia los canales después de cada prueba
+/// 🔁 Limpia los canales después de cada prueba
 void limpiarFirebaseMocks() {
-  for (final channelName in [
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+
+  for (final name in [
     'plugins.flutter.io/firebase_core',
     'plugins.flutter.io/firebase_auth',
     'plugins.flutter.io/cloud_firestore',
   ]) {
-    final channel = MethodChannel(channelName);
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, null);
+    messenger.setMockMethodCallHandler(MethodChannel(name), null);
   }
 }
