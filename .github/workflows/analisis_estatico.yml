@@ -10,46 +10,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout del repositorio
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # ✅ Instalar Flutter 3.27.1 (Dart 3.8.1)
-      - name: Instalar Flutter 3.27.1
-        run: |
-          wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.1-stable.tar.xz
-          tar xf flutter_linux_3.27.1-stable.tar.xz
-          export PATH="$PATH:$PWD/flutter/bin"
-          flutter --version
+      # 2️⃣ Instalar Flutter (USAMOS EL MÉTODO ESTABLE DE ACCIÓN)
+      - name: Instalar Flutter 3.24.3
+        uses: subosito/flutter-action@v2
+        with:
+          # NOTA: Cambia '3.24.3' a la versión MÁS RECIENTE
+          # compatible con Dart ^3.8.1 si '3.24.3' no funciona.
+          flutter-version: '3.24.3' 
+          channel: 'stable'
+          cache: true
 
+      - name: Verificar versión de Flutter
+        run: flutter --version
+
+      # 3️⃣ Obtener dependencias (EJECUTADO DENTRO DE LA CARPETA DE LA APP)
       - name: Obtener dependencias
-        run: |
-          export PATH="$PATH:$PWD/flutter/bin"
-          flutter pub get
+        run: cd SosMascota && flutter pub get
 
-      # 🔹 1. Análisis con SonarCloud
+      # 4️⃣ Ejecutar pruebas con cobertura (EJECUTADO DENTRO DE LA CARPETA DE LA APP)
+      - name: Ejecutar pruebas con cobertura
+        run: cd SosMascota && flutter test --coverage
+
+      # 5️⃣ Análisis con SonarCloud 
       - name: Análisis con SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          projectBaseDir: .
+          # APUNTA A LA CARPETA DE LA APP
+          projectBaseDir: SosMascota 
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.qualitygate.wait=true
+            # RUTA DEL REPORTE ES RELATIVA A 'SosMascota'
             -Dsonar.dart.coverage.reportPaths=coverage/lcov.info
             -Dsonar.c.file.suffixes=-
             -Dsonar.cpp.file.suffixes=-
             -Dsonar.objc.file.suffixes=-
-            -Dsonar.dart.file.suffixes=-
+            # REMOVEMOS la exclusión de Dart (antes estaba -Dsonar.dart.file.suffixes=-)
 
-      # 🔹 2. Análisis con Semgrep
+      # 6️⃣ Análisis con Semgrep
       - name: Análisis con Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
           config: "p/ci"
 
-      # 🔹 3. Análisis con Snyk
+      # 7️⃣ Análisis con Snyk
       - name: Análisis con Snyk
         uses: snyk/actions/setup@v1
         env:
