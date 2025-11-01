@@ -14,8 +14,8 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
 
-      # 2️⃣ Instalar Flutter
-      - name: Instalar Flutter 3.32.4 (Compatible con Dart 3.8.1)
+      # 2️⃣ Instalar Flutter (versión estable compatible con Dart 3.8.1)
+      - name: Instalar Flutter 3.32.4
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.4'
@@ -25,7 +25,7 @@ jobs:
       - name: Verificar versión de Flutter
         run: flutter --version
 
-      # 3️⃣ Instalar Dart CLI (necesario para SonarCloud)
+      # 3️⃣ Instalar Dart SDK (necesario para SonarCloud)
       - name: Instalar Dart SDK
         uses: dart-lang/setup-dart@v1
         with:
@@ -35,14 +35,28 @@ jobs:
         run: dart --version
 
       # 4️⃣ Obtener dependencias
-      - name: Obtener dependencias
+      - name: Obtener dependencias del proyecto
         run: flutter pub get
 
-      # 5️⃣ Ejecutar pruebas con cobertura
+      # 5️⃣ Ejecutar pruebas unitarias con cobertura
       - name: Ejecutar pruebas con cobertura
         run: flutter test --coverage
 
-      # 6️⃣ Análisis con SonarCloud
+      # 6️⃣ Crear archivo de configuración de SonarCloud dinámicamente
+      - name: Crear archivo sonar-project.properties
+        run: |
+          echo "sonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}" >> sonar-project.properties
+          echo "sonar.organization=${{ secrets.SONAR_ORG }}" >> sonar-project.properties
+          echo "sonar.host.url=https://sonarcloud.io" >> sonar-project.properties
+          echo "sonar.sources=lib" >> sonar-project.properties
+          echo "sonar.tests=test" >> sonar-project.properties
+          echo "sonar.javascript.lcov.reportPaths=coverage/lcov.info" >> sonar-project.properties
+          echo "sonar.dart.analyzer.skip=true" >> sonar-project.properties
+          echo "sonar.c.file.suffixes=-" >> sonar-project.properties
+          echo "sonar.cpp.file.suffixes=-" >> sonar-project.properties
+          echo "sonar.objc.file.suffixes=-" >> sonar-project.properties
+
+      # 7️⃣ Análisis con SonarCloud
       - name: Análisis con SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
         env:
@@ -50,16 +64,24 @@ jobs:
         with:
           projectBaseDir: .
 
-      # 7️⃣ Análisis con Semgrep
+      # 8️⃣ Análisis con Semgrep (seguridad estática)
       - name: Análisis con Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
           config: "p/ci"
 
-      # 8️⃣ Análisis con Snyk
+      # 9️⃣ Análisis con Snyk (vulnerabilidades en dependencias)
       - name: Análisis con Snyk
         uses: snyk/actions/setup@v1
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           command: test
+
+      # 🔟 (Opcional) Subir el reporte HTML de cobertura como artefacto descargable
+      - name: Subir reporte de cobertura HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-cobertura
+          path: coverage/
