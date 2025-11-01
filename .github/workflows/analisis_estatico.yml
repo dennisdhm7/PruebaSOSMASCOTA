@@ -45,16 +45,16 @@ jobs:
       # 6️⃣ Crear archivo de configuración de SonarCloud dinámicamente
       - name: Crear archivo sonar-project.properties
         run: |
-          echo "sonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}" >> sonar-project.properties
-          echo "sonar.organization=${{ secrets.SONAR_ORG }}" >> sonar-project.properties
-          echo "sonar.host.url=https://sonarcloud.io" >> sonar-project.properties
-          echo "sonar.sources=lib" >> sonar-project.properties
-          echo "sonar.tests=test" >> sonar-project.properties
-          echo "sonar.javascript.lcov.reportPaths=coverage/lcov.info" >> sonar-project.properties
-          echo "sonar.dart.analyzer.skip=true" >> sonar-project.properties
-          echo "sonar.c.file.suffixes=-" >> sonar-project.properties
-          echo "sonar.cpp.file.suffixes=-" >> sonar-project.properties
-          echo "sonar.objc.file.suffixes=-" >> sonar-project.properties
+          echo sonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} >> sonar-project.properties
+          echo sonar.organization=${{ secrets.SONAR_ORG }} >> sonar-project.properties
+          echo sonar.host.url=https://sonarcloud.io >> sonar-project.properties
+          echo sonar.sources=lib >> sonar-project.properties
+          echo sonar.tests=test >> sonar-project.properties
+          echo sonar.javascript.lcov.reportPaths=coverage/lcov.info >> sonar-project.properties
+          echo sonar.dart.analyzer.skip=true >> sonar-project.properties
+          echo sonar.c.file.suffixes=- >> sonar-project.properties
+          echo sonar.cpp.file.suffixes=- >> sonar-project.properties
+          echo sonar.objc.file.suffixes=- >> sonar-project.properties
 
       # 7️⃣ Análisis con SonarCloud
       - name: Análisis con SonarCloud
