@@ -49,17 +49,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: .
-          args: |
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.organization=${{ secrets.SONAR_ORG }}
-            -Dsonar.qualitygate.wait=true
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.dart.analyzer.skip=true
-            -Dsonar.sources=lib
-            -Dsonar.tests=test
-            -Dsonar.c.file.suffixes=-
-            -Dsonar.cpp.file.suffixes=-
-            -Dsonar.objc.file.suffixes=-
 
       # 7️⃣ Análisis con Semgrep
       - name: Análisis con Semgrep
